@@ -7,22 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0e1a;
-  --bg2: #111827;
-  --card: #141d2e;
-  --card2: #1a2540;
-  --primary: #4a9eff;
+  --bg: #080c18;
+  --bg2: #0f1623;
+  --card: #131c30;
+  --card2: #192440;
+  --primary: #5aabff;
   --primary-dark: #2d7de0;
   --gold: #ffd700;
   --gold-dim: rgba(255,215,0,0.15);
+  --red: #ff4444;
   --success: #00e676;
-  --success-dim: rgba(0,230,118,0.12);
-  --error: #ff4d4d;
-  --error-dim: rgba(255,77,77,0.12);
-  --warn: #ffaa00;
-  --text: #e2e8f0;
-  --text-muted: #64748b;
-  --border: rgba(255,255,255,0.07);
+  --success-dim: rgba(0,230,118,0.14);
+  --error: #ff5555;
+  --error-dim: rgba(255,85,85,0.14);
+  --warn: #ffbb00;
+  --text: #f0f4ff;
+  --text-muted: #9ab0cc;
+  --border: rgba(255,255,255,0.09);
   --radius: 14px;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -108,14 +109,14 @@ body { font-family:'Inter','Noto Sans JP',sans-serif; background:var(--bg); colo
 .diff-medium { color:var(--warn); }
 .diff-hard { color:var(--error); }
 
-.question-text { font-size:17px; font-weight:600; line-height:1.7; margin-bottom:24px; }
+.question-text { font-size:18px; font-weight:600; line-height:1.8; margin-bottom:24px; }
 .term-link { color:var(--gold); border-bottom:1px dotted var(--gold); cursor:pointer; font-weight:700; }
 
 .choices { display:flex; flex-direction:column; gap:10px; }
 .choice-btn {
   background:var(--card); border:1.5px solid var(--border);
-  border-radius:var(--radius); padding:14px 16px;
-  text-align:left; cursor:pointer; font-size:14px; line-height:1.5;
+  border-radius:var(--radius); padding:15px 18px;
+  text-align:left; cursor:pointer; font-size:15px; line-height:1.6;
   transition:all 0.15s; display:flex; align-items:flex-start; gap:12px; color:var(--text);
 }
 .choice-btn:hover:not(.disabled) { border-color:var(--primary); background:var(--card2); }
@@ -151,7 +152,7 @@ body { font-family:'Inter','Noto Sans JP',sans-serif; background:var(--bg); colo
 .answer-label { font-size:16px; font-weight:700; }
 .answer-label.correct { color:var(--success); }
 .answer-label.wrong { color:var(--error); }
-.explanation { font-size:13px; color:rgba(226,232,240,0.8); line-height:1.8; }
+.explanation { font-size:14px; color:var(--text); line-height:1.9; }
 
 .terms-section { margin-top:16px; padding-top:16px; border-top:1px solid var(--border); }
 .terms-title { font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
@@ -248,6 +249,42 @@ body { font-family:'Inter','Noto Sans JP',sans-serif; background:var(--bg); colo
 
 .pb-nav { padding-bottom:72px; }
 
+/* AI侍くん MASCOT */
+.samurai-hero {
+  display:flex; flex-direction:column; align-items:center;
+  padding:32px 24px 20px; position:relative;
+}
+.samurai-wrap {
+  position:relative; display:inline-block; margin-bottom:16px;
+}
+.samurai-svg { display:block; filter:drop-shadow(0 0 16px rgba(90,171,255,0.35)); }
+.samurai-glow {
+  position:absolute; inset:-12px; border-radius:50%;
+  background:radial-gradient(circle, rgba(90,171,255,0.12) 0%, transparent 70%);
+  pointer-events:none; animation:glowPulse 3s ease-in-out infinite;
+}
+@keyframes glowPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+.speech-bubble {
+  background:var(--card2); border:1.5px solid rgba(90,171,255,0.3);
+  border-radius:16px; padding:14px 20px; max-width:280px;
+  font-size:14px; font-weight:600; color:var(--text); line-height:1.6;
+  position:relative; text-align:center;
+  box-shadow:0 0 20px rgba(90,171,255,0.1);
+}
+.speech-bubble::before {
+  content:''; position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+  border:6px solid transparent; border-bottom-color:rgba(90,171,255,0.3);
+}
+.speech-bubble::after {
+  content:''; position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+  border:5px solid transparent; border-bottom-color:var(--card2);
+}
+.samurai-name {
+  font-size:11px; font-weight:700; color:var(--gold);
+  letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;
+}
+.home-sub { color:var(--text-muted); font-size:13px; margin-top:12px; }
+
 @media (min-width:500px) {
   .mode-grid { grid-template-columns:repeat(3,1fr); }
   .mode-btn.full { grid-column:auto; }
@@ -264,8 +301,55 @@ body { font-family:'Inter','Noto Sans JP',sans-serif; background:var(--bg); colo
     <span class="app-badge">JDLA準拠</span>
   </header>
   <div class="pb-nav" style="overflow-y:auto">
-    <div class="home-hero">
-      <div class="home-title">🧠 G検定<span>合格</span>への最短ルート</div>
+    <div class="samurai-hero">
+      <div class="samurai-wrap">
+        <div class="samurai-glow"></div>
+        <!-- AI侍くん SVG -->
+        <svg class="samurai-svg" viewBox="0 0 120 140" width="110" height="130" xmlns="http://www.w3.org/2000/svg">
+          <!-- 兜の角（三日月型） -->
+          <path d="M22,52 Q6,28 16,6 Q27,30 30,48Z" fill="#ffd700" opacity="0.95"/>
+          <path d="M98,52 Q114,28 104,6 Q93,30 90,48Z" fill="#ffd700" opacity="0.95"/>
+          <!-- 角の光沢 -->
+          <path d="M20,48 Q10,28 18,10 Q22,28 24,44Z" fill="rgba(255,255,255,0.2)"/>
+          <path d="M100,48 Q110,28 102,10 Q98,28 96,44Z" fill="rgba(255,255,255,0.2)"/>
+          <!-- 兜ドーム -->
+          <ellipse cx="60" cy="46" rx="36" ry="32" fill="#131c30"/>
+          <ellipse cx="60" cy="46" rx="34" ry="30" fill="#192440"/>
+          <!-- ドームのハイライト -->
+          <ellipse cx="50" cy="33" rx="13" ry="8" fill="rgba(255,255,255,0.06)"/>
+          <!-- 兜の縁（金） -->
+          <rect x="18" y="71" width="84" height="8" rx="4" fill="#ffd700"/>
+          <rect x="20" y="71" width="80" height="4" rx="2" fill="rgba(255,255,255,0.2)"/>
+          <!-- 顔板 -->
+          <rect x="16" y="79" width="88" height="46" rx="10" fill="#0d1420"/>
+          <rect x="19" y="82" width="82" height="40" rx="8" fill="#111827"/>
+          <!-- 目（青LED） -->
+          <rect x="26" y="91" width="26" height="14" rx="4" fill="#5aabff"/>
+          <rect x="68" y="91" width="26" height="14" rx="4" fill="#5aabff"/>
+          <!-- 目の光沢 -->
+          <rect x="28" y="93" width="10" height="5" rx="2" fill="rgba(255,255,255,0.55)"/>
+          <rect x="70" y="93" width="10" height="5" rx="2" fill="rgba(255,255,255,0.55)"/>
+          <!-- 目のグロー -->
+          <rect x="24" y="89" width="30" height="18" rx="5" fill="#5aabff" opacity="0.15"/>
+          <rect x="66" y="89" width="30" height="18" rx="5" fill="#5aabff" opacity="0.15"/>
+          <!-- 仕切り線 -->
+          <rect x="19" y="109" width="82" height="1.5" fill="rgba(255,255,255,0.07)"/>
+          <!-- 口グリル -->
+          <rect x="30" y="113" width="10" height="5" rx="2.5" fill="#1a2a46"/>
+          <rect x="45" y="113" width="10" height="5" rx="2.5" fill="#1a2a46"/>
+          <rect x="60" y="113" width="10" height="5" rx="2.5" fill="#1a2a46"/>
+          <rect x="75" y="113" width="10" height="5" rx="2.5" fill="#1a2a46"/>
+          <!-- 顎ガード（金） -->
+          <path d="M16,125 Q60,138 104,125" stroke="#ffd700" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- 兜のサイド回路ライン（AIディテール） -->
+          <path d="M19,50 L19,68" stroke="#5aabff" stroke-width="1" opacity="0.4"/>
+          <path d="M101,50 L101,68" stroke="#5aabff" stroke-width="1" opacity="0.4"/>
+          <circle cx="19" cy="58" r="2" fill="#5aabff" opacity="0.6"/>
+          <circle cx="101" cy="58" r="2" fill="#5aabff" opacity="0.6"/>
+        </svg>
+      </div>
+      <div class="samurai-name">⚔ AI侍くん</div>
+      <div class="speech-bubble" id="samurai-speech">一緒にG検定を<span style="color:var(--gold);font-weight:800">合格</span>しよう！🔥</div>
       <div class="home-sub">2026年7月試験対応 · JDLAシラバス完全準拠</div>
     </div>
     <div class="stats-grid" id="home-stats">
@@ -969,6 +1053,23 @@ function resetStats() {
 /* ===================================================
    UTILS
    =================================================== */
+/* AI侍くん セリフローテーション */
+const SAMURAI_MSGS = [
+  '一緒にG検定を<span style="color:var(--gold);font-weight:800">合格</span>しよう！🔥',
+  '今日も<span style="color:var(--gold);font-weight:800">1問</span>から始めよう！⚔',
+  '<span style="color:var(--gold);font-weight:800">弱点</span>を鍛えれば合格は近い！💪',
+  '正答率<span style="color:var(--gold);font-weight:800">70%超え</span>で合格ライン！🎯',
+  '毎日続けることが<span style="color:var(--gold);font-weight:800">最強の武器</span>だ！🏆',
+  'AIの力で<span style="color:var(--gold);font-weight:800">未来</span>を切り開け！✨',
+];
+let samuraiIdx = 0;
+setInterval(() => {
+  samuraiIdx = (samuraiIdx + 1) % SAMURAI_MSGS.length;
+  const el = document.getElementById('samurai-speech');
+  if (el) { el.style.opacity='0'; setTimeout(()=>{ el.innerHTML=SAMURAI_MSGS[samuraiIdx]; el.style.opacity='1'; },300); }
+}, 4000);
+document.getElementById('samurai-speech').style.transition = 'opacity 0.3s';
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i=a.length-1; i>0; i--) {
