@@ -96,7 +96,22 @@ body { font-family:'Inter','Noto Sans JP',sans-serif; background:var(--bg); colo
 .start-btn:hover { opacity:0.9; }
 
 /* QUIZ SCREEN */
-.quiz-header { padding:14px 20px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.quiz-header { padding:14px 16px; display:flex; justify-content:space-between; align-items:center; gap:10px; border-bottom:1px solid var(--border); background:var(--bg2); position:sticky; top:0; z-index:40; }
+.quiz-home-btn { background:none; border:1.5px solid var(--border); border-radius:8px; padding:6px 10px; font-size:16px; cursor:pointer; color:var(--text-muted); flex-shrink:0; transition:all 0.15s; }
+.quiz-home-btn:hover { border-color:var(--primary); color:var(--primary); }
+
+/* 再開バナー */
+.resume-banner {
+  margin:0 20px 16px; padding:14px 16px; border-radius:var(--radius);
+  background:linear-gradient(135deg,rgba(204,40,0,0.08),rgba(184,134,11,0.08));
+  border:1.5px solid rgba(204,40,0,0.25); display:flex; align-items:center; gap:12px;
+  box-shadow:var(--shadow);
+}
+.resume-banner-text { flex:1; }
+.resume-banner-title { font-size:13px; font-weight:700; color:var(--primary); }
+.resume-banner-sub { font-size:11px; color:var(--text-muted); margin-top:2px; }
+.resume-btn { background:var(--primary); color:white; border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; flex-shrink:0; }
+.resume-clear { background:none; border:none; color:var(--text-muted); font-size:18px; cursor:pointer; padding:4px; flex-shrink:0; }
 .quiz-progress-wrap { flex:1; }
 .quiz-progress-bar { height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; }
 .quiz-progress-fill { height:100%; background:var(--primary); border-radius:3px; transition:width 0.3s; }
@@ -149,7 +164,7 @@ body { font-family:'Inter','Noto Sans JP',sans-serif; background:var(--bg); colo
   box-shadow:0 0 14px rgba(204,40,0,0.3);
 }
 .submit-btn:disabled { opacity:0.4; cursor:not-allowed; }
-.submit-btn.next { background:var(--card2); border:1px solid var(--border); }
+.submit-btn.next { background:var(--primary); color:#fff; border:2px solid var(--gold); box-shadow:0 0 14px rgba(204,40,0,0.25); }
 .submit-btn:not(:disabled):hover { opacity:0.9; }
 
 /* ANSWER FEEDBACK */
@@ -317,6 +332,7 @@ body { font-family:'Inter','Noto Sans JP',sans-serif; background:var(--bg); colo
         <div class="home-sub">2026年7月試験対応 · JDLAシラバス完全準拠</div>
       </div>
     </div>
+    <div id="resume-banner-wrap"></div>
     <div class="stats-grid" id="home-stats">
       <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">総問題数</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-acc">—</div><div class="stat-label">正答率</div></div>
@@ -355,6 +371,7 @@ body { font-family:'Inter','Noto Sans JP',sans-serif; background:var(--bg); colo
 <!-- ===== QUIZ SCREEN ===== -->
 <div class="screen" id="screen-quiz">
   <div class="quiz-header">
+    <button class="quiz-home-btn" onclick="pauseAndGoHome()" title="ホームへ戻る">🏠</button>
     <div class="quiz-progress-wrap">
       <div class="quiz-count" id="quiz-count">1 / 30</div>
       <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-fill" style="width:0%"></div></div>
@@ -669,6 +686,84 @@ function saveStorage() {
 }
 
 /* ===================================================
+   SESSION SAVE / RESUME
+   =================================================== */
+const SESSION_KEY = 'gkentei_session_v1';
+
+function saveSession() {
+  if (!appState.queue || appState.queue.length === 0) return;
+  const session = {
+    queueIds: appState.queue.map(q => q.id),
+    current: appState.current,
+    results: appState.results,
+    mode: appState.mode,
+    timerSeconds: appState.timerSeconds || null,
+    savedAt: Date.now()
+  };
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(session)); } catch(e) {}
+}
+
+function loadSession() {
+  try {
+    const s = localStorage.getItem(SESSION_KEY);
+    return s ? JSON.parse(s) : null;
+  } catch(e) { return null; }
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function pauseAndGoHome() {
+  if (appState.queue && appState.queue.length > 0 && appState.current < appState.queue.length) {
+    saveSession();
+    if (appState.timerInterval) clearInterval(appState.timerInterval);
+  }
+  showScreen('home');
+  renderHome();
+}
+
+function resumeSession() {
+  const session = loadSession();
+  if (!session) return;
+  appState.queue = session.queueIds.map(id => QUESTIONS.find(q => q.id === id)).filter(Boolean);
+  appState.current = session.current;
+  appState.results = session.results || [];
+  appState.mode = session.mode;
+  appState.selected = -1;
+  appState.answered = false;
+  if (session.mode === 'exam' && session.timerSeconds > 0) {
+    appState.timerSeconds = session.timerSeconds;
+    startTimer();
+  } else {
+    stopTimer();
+  }
+  showScreen('quiz', false);
+  renderQuestion();
+}
+
+function renderResumeBanner() {
+  const wrap = document.getElementById('resume-banner-wrap');
+  if (!wrap) return;
+  const session = loadSession();
+  if (!session || session.current >= session.queueIds.length) {
+    wrap.innerHTML = ''; return;
+  }
+  const modeLabel = {study:'学習モード', exam:'模擬試験', weak:'弱点集中'}[session.mode] || session.mode;
+  const prog = `${session.current + 1} / ${session.queueIds.length}`;
+  wrap.innerHTML = `
+    <div class="resume-banner">
+      <div style="font-size:24px">📌</div>
+      <div class="resume-banner-text">
+        <div class="resume-banner-title">前回の続きがあります</div>
+        <div class="resume-banner-sub">${modeLabel} · 問題 ${prog}</div>
+      </div>
+      <button class="resume-btn" onclick="resumeSession()">再開 ▶</button>
+      <button class="resume-clear" onclick="clearSession();renderResumeBanner()" title="削除">✕</button>
+    </div>`;
+}
+
+/* ===================================================
    INIT
    =================================================== */
 loadStorage();
@@ -676,6 +771,7 @@ renderHome();
 document.getElementById('start-btn').textContent = '学習スタート ▶';
 
 function renderHome() {
+  renderResumeBanner();
   document.getElementById('stat-total').textContent = storage.totalAnswered || 0;
   const acc = storage.totalAnswered > 0 ? Math.round(storage.totalCorrect/storage.totalAnswered*100)+'%' : '—';
   document.getElementById('stat-acc').textContent = acc;
@@ -895,6 +991,7 @@ function updateTimerDisplay() {
    =================================================== */
 function showResults() {
   stopTimer();
+  clearSession();
   const results = appState.results;
   const correct = results.filter(r=>r.correct).length;
   const total = results.length;
